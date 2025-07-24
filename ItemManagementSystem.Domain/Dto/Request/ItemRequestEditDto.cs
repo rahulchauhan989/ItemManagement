@@ -4,7 +4,6 @@ namespace ItemManagementSystem.Domain.Dto.Request
 {
     public class ItemRequestEditDto
     {
-        [Required]
         public List<ItemRequestDetailEditDto> Items { get; set; } = new List<ItemRequestDetailEditDto>();
         public string? Status { get; set; }
     }

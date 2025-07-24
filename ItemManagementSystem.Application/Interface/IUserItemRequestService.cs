@@ -10,7 +10,7 @@ namespace ItemManagementSystem.Application.Interface
         Task<ItemRequestWithIdsResponseDto?> GetUserItemRequestByIdAsync(int id);
         Task UpdateStatusAsync(int id, int statusId, string? comment, int userId);
         Task<ItemRequestResponseDto> CreateRequestWithStatusAsync(int userId, CreateItemRequestWithStatusDto dto, Domain.Constants.StatusEnum status);
-        Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto);
+        // Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto);
         Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, Domain.Dto.ItemRequestFilterDto filter);
         bool IsValidStatusTransition(int currentStatusId, int newStatusId);
     }

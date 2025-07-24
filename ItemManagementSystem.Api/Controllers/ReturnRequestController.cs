@@ -1,6 +1,7 @@
 using ItemManagementSystem.Api.Helpers;
 using ItemManagementSystem.Application.Interface;
 using ItemManagementSystem.Domain.Constants;
+using ItemManagementSystem.Domain.DataModels;
 using ItemManagementSystem.Domain.Dto;
 using ItemManagementSystem.Domain.Dto.Request;
 using ItemManagementSystem.Domain.Dto.Return;
@@ -15,13 +16,15 @@ namespace ItemManagementSystem.Api.Controllers;
 public class ReturnRequestController : ControllerBase
 {
     private readonly IReturnRequestService _returnRequestService;
+    private readonly IUserReturnRequestService _userReturnRequestService;
     private readonly IItemTypeService _itemTypeService;
-    private readonly IRepository<ItemManagementSystem.Domain.DataModels.Status> _statusRepo;
+    private readonly IRepository<Status> _statusRepo;
 
-    public ReturnRequestController(IReturnRequestService returnRequestService, IItemTypeService itemTypeService, IRepository<ItemManagementSystem.Domain.DataModels.Status> statusRepo)
+    public ReturnRequestController(IReturnRequestService returnRequestService, IUserReturnRequestService userReturnRequestService, IItemTypeService itemTypeService, IRepository<ItemManagementSystem.Domain.DataModels.Status> statusRepo)
     {
         _itemTypeService = itemTypeService;
         _returnRequestService = returnRequestService;
+        _userReturnRequestService = userReturnRequestService;
         _statusRepo = statusRepo;
     }
 
@@ -30,7 +33,7 @@ public class ReturnRequestController : ControllerBase
     public async Task<ActionResult<ApiResponse>> CreateOrSaveReturnRequest([FromBody] ReturnRequestCreateWithStatusDto dto)
     {
         int userId = UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
-        var statusEntity = (await _statusRepo.FindAsync(s => s.Name == dto.Status)).FirstOrDefault();
+        var statusEntity = (await _statusRepo.FindAsync(s => s.Name == dto.Status.Trim())).FirstOrDefault();
         if (statusEntity == null)
         {
             return BadRequest(new ApiResponse(false, 400, null, $"Invalid status: {dto.Status}"));
@@ -38,8 +41,8 @@ public class ReturnRequestController : ControllerBase
         int statusId = statusEntity.Id;
         var result = await _returnRequestService.CreateReturnRequestWithStatusAsync(userId, dto, statusId);
         string message = dto.Status == "Draft" ? AppMessages.ReturnRequestDraftSaved : AppMessages.ReturnRequestCreated;
-        int statusCode = dto.Status == "Draft" ? 200 : 201;
-        return new ApiResponse(true, statusCode, result, message);
+        int statusCode = dto.Status == "Draft" ? StatusCodes.Status200OK : StatusCodes.Status201Created;
+        return new ApiResponse(true, statusCode, null, message);
     }
 
     [HttpPost("my-requests")]
@@ -48,39 +51,31 @@ public class ReturnRequestController : ControllerBase
     {
         int userId = UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
         var result = await _returnRequestService.GetUserReturnRequestsAsync(userId, filter);
-        return new ApiResponse(true, 200, result, AppMessages.GetMyReturnRequests);
+        return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.GetMyReturnRequests);
     }
-
-    // [HttpPost("all-request")]
-    // [Authorize(Roles = "Admin")]
-    // public async Task<ActionResult<ApiResponse>> GetAllReturnRequestsPost([FromBody] ReturnRequestFilterDto filter)
-    // {
-    //     var result = await _returnRequestService.GetAllReturnRequestsAsync(filter);
-    //     return new ApiResponse(true, 200, result, AppMessages.GetAllReturnRequests);
-    // }
 
     [HttpPut("status-update/{id}")]
     [Authorize(Roles = "User")]
     public async Task<ActionResult<ApiResponse>> UpdateStatus(int id, [FromBody] UpdateReturnRequestStatusDto dto)
     {
         int userId = UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
-        var statusEntity = (await _statusRepo.FindAsync(s => s.Name == dto.Status)).FirstOrDefault();
+        var statusEntity = (await _statusRepo.FindAsync(s => s.Name == dto.Status.Trim())).FirstOrDefault();
         if (statusEntity == null)
         {
-            return BadRequest(new ApiResponse(false, 400, null, $"Invalid status: {dto.Status}"));
+            return BadRequest(new ApiResponse(false, StatusCodes.Status400BadRequest, null, $"Invalid status: {dto.Status}"));
         }
         int statusId = statusEntity.Id;
-        await _returnRequestService.UpdateReturnRequestStatusAsync(id, statusId, dto.Comment, userId);
-        return new ApiResponse(true, 200, null, $"Return request status updated to {dto.Status}");
+        await _userReturnRequestService.UpdateUserReturnRequestStatusAsync(id, userId, dto.Status.ToString());
+        return new ApiResponse(true, StatusCodes.Status200OK, null, $"Return request status updated to {dto.Status}");
     }
 
     [HttpPut("edit/{id}")]
     [Authorize(Roles = "User")]
-    public async Task<ActionResult<ApiResponse>> EditReturnRequest(int id, [FromBody] ItemManagementSystem.Domain.Dto.Return.EditReturnRequestWithStatusDto dto)
+    public async Task<ActionResult<ApiResponse>> EditReturnRequest(int id, [FromBody] EditReturnRequestWithStatusDto dto)
     {
         int userId = UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
         await _returnRequestService.EditReturnRequestWithStatusAsync(id, userId, dto);
-        return new ApiResponse(true, 204, null, AppMessages.ReturnRequestUpdated);
+        return new ApiResponse(true, StatusCodes.Status204NoContent, null, AppMessages.ReturnRequestUpdated);
     }
 
 }

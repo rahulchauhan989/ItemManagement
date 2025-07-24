@@ -35,21 +35,21 @@ namespace ItemManagementSystem.Api.Controllers
             int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             var response = await _itemTypeService.CreateAsync(request, userId);
 
-            return new ApiResponse(true, 201, response, AppMessages.ItemTypeCreated);
+            return new ApiResponse(true, StatusCodes.Status201Created, response, AppMessages.ItemTypeCreated);
         }
 
         [HttpGet("item-types/{id}")]
         public async Task<ActionResult<ApiResponse>> GetItemType(int id)
         {
             var result = await _itemTypeService.GetByIdAsync(id);
-            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.ItemTypesRetrieved);
         }
 
           [HttpPost("item-types/search")]
         public async Task<ActionResult<ApiResponse>> FilterItemTypes([FromBody] ItemTypeFilterDto filter)
         {
             var result = await _itemTypeService.GetPagedItemTypesAsync(filter);
-            return new ApiResponse(true, 200, result, AppMessages.ItemTypesRetrieved);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.ItemTypesRetrieved);
         }
 
         [HttpPut("item-types/{id}")]
@@ -57,14 +57,14 @@ namespace ItemManagementSystem.Api.Controllers
         {
             int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             var result = await _itemTypeService.updateAsync(id, dto, userId);
-            return new ApiResponse(true, 204, result, AppMessages.ItemTypeUpdated);
+            return new ApiResponse(true, StatusCodes.Status204NoContent, result, AppMessages.ItemTypeUpdated);
         }
 
         [HttpDelete("item-types/{id}")]
         public async Task<ActionResult<ApiResponse>> DeleteItemType(int id)
         {
             await _itemTypeService.DeleteAsync(id);
-            return new ApiResponse(true, 204, null, AppMessages.ItemTypeDeleted);
+            return new ApiResponse(true, StatusCodes.Status204NoContent, null, AppMessages.ItemTypeDeleted);
         }
 
 
@@ -73,14 +73,14 @@ namespace ItemManagementSystem.Api.Controllers
         {
             int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             var result = await _itemModelService.CreateAsync(dto, userId);
-            return new ApiResponse(true, 201, result, AppMessages.ItemModelCreated);
+            return new ApiResponse(true, StatusCodes.Status201Created, result, AppMessages.ItemModelCreated);
         }
 
         [HttpGet("item-models/{id}")]
         public async Task<ActionResult<ApiResponse>> GetItemModel(int id)
         {
             var result = await _itemModelService.GetByIdAsync(id);
-            return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.ItemModelsRetrieved);
         }
 
       
@@ -90,14 +90,14 @@ namespace ItemManagementSystem.Api.Controllers
         {
             int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             var result = await _itemModelService.UpdateAsync(id, dto, userId);
-            return new ApiResponse(true, 204, result, AppMessages.ItemModelUpdated);
+            return new ApiResponse(true, StatusCodes.Status204NoContent, result, AppMessages.ItemModelUpdated);
         }
 
         [HttpDelete("item-models/{id}")]
         public async Task<ActionResult<ApiResponse>> DeleteItemModel(int id)
         {
             await _itemModelService.DeleteAsync(id);
-            return new ApiResponse(true, 204, null, AppMessages.ItemModelDeleted);
+            return new ApiResponse(true, StatusCodes.Status204NoContent, null, AppMessages.ItemModelDeleted);
         }
 
         // [HttpGet("item-models")]
@@ -111,7 +111,7 @@ namespace ItemManagementSystem.Api.Controllers
         public async Task<ActionResult<ApiResponse>> FilterItemModels([FromBody] ItemModelFilterDto filter)
         {
             var result = await _itemModelService.GetPagedAsync(filter);
-            return new ApiResponse(true, 200, result, AppMessages.ItemModelsRetrieved);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.ItemModelsRetrieved);
         }
 
         [HttpPost("purchase-requests")]
@@ -119,14 +119,14 @@ namespace ItemManagementSystem.Api.Controllers
         {
             int userId =  UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             var result = await _purchaseRequestService.CreateAsync(dto, userId);
-            return new ApiResponse(true, 201, null, AppMessages.PurchaseRequestCreated);
+            return new ApiResponse(true, StatusCodes.Status201Created, null, AppMessages.PurchaseRequestCreated);
         }
 
         [HttpGet("purchase-requests/{id}")]
         public async Task<ActionResult<ApiResponse>> GetPurchaseRequest(int id)
         {
             var result = await _purchaseRequestService.GetByIdAsync(id);
-            return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.PurchaseRequestsRetrieved);
         }
 
         // [HttpGet("purchase-requests")]
@@ -140,7 +140,7 @@ namespace ItemManagementSystem.Api.Controllers
         public async Task<ActionResult<ApiResponse>> FilterPurchaseRequests([FromBody] PurchaseRequestFilterDto filter)
         {
             var result = await _purchaseRequestService.GetAllAsync(filter);
-            return new ApiResponse(true, 200, result, AppMessages.PurchaseRequestsRetrieved);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.PurchaseRequestsRetrieved);
         }
 
 

@@ -32,7 +32,6 @@ namespace ItemManagementSystem.Application.Implementation
         {
             dto.Id = 0;
             dto.modifiedBy = null;
-            //if ItemModal with same name already exists in same ItemType, throw exception
             var exists = (await _itemModaRepo.FindAsync(
                 it => it.Name.ToLower() == dto.Name.ToLower() && it.ItemTypeId == dto.ItemTypeId
             )).Any();
@@ -127,7 +126,6 @@ namespace ItemManagementSystem.Application.Implementation
             if (entity == null)
                 throw new NullObjectException(AppMessages.ItemModelNotFound);
 
-            // if ItemModel with same name already exists in same ItemType, throw exception
             var exists = (await _itemModaRepo.FindAsync(
                 it => it.Name.ToLower() == dto.Name.ToLower() && it.ItemTypeId == dto.ItemTypeId && it.Id != id
             )).Any();
@@ -136,7 +134,6 @@ namespace ItemManagementSystem.Application.Implementation
 
             dto.createdBy = entity.CreatedBy;
 
-            // Do not allow updating quantity from here
             var existingQuantity = entity.Quantity;
             _mapper.Map(dto, entity);
             entity.Quantity = existingQuantity;

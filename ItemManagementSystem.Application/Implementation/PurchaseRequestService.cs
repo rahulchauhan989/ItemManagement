@@ -190,6 +190,11 @@ namespace ItemManagementSystem.Application.Implementation
         {
             var filterProperties = new Dictionary<string, string?>();
 
+            if (!string.IsNullOrEmpty(filter.InvoiceNumber))
+            {
+                filterProperties.Add("InvoiceNumber", filter.InvoiceNumber);
+            }
+
             var pagedResult = await _purchaseRepo.GetPagedWithMultipleFiltersAndSortAsync(
                 filterProperties,
                 filter.SortBy,
@@ -198,10 +203,16 @@ namespace ItemManagementSystem.Application.Implementation
                 filter.PageSize);
 
             var result = new List<PurchaseRequestResponseDto>();
+
             foreach (var entity in pagedResult.Items)
             {
                 var user = await _userRepo.GetByIdAsync(entity.CreatedBy);
                 string? createdByUserName = user?.Name;
+
+                if (!string.IsNullOrEmpty(filter.UserName) && (createdByUserName == null || !createdByUserName.Contains(filter.UserName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue; 
+                }
 
                 var dto = new PurchaseRequestResponseDto
                 {

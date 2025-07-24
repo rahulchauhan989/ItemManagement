@@ -14,6 +14,7 @@ namespace ItemManagementSystem.Application.Services;
     {
         private readonly IRepository<ItemRequest> _requestRepo;
         private readonly IRepository<ItemRequestDetail> _ItemRequestDetailRepo;
+        private readonly IRepository<Status> _statusRepo;
         private readonly IRepository<ItemModel> _itemModelRepo;
         private readonly IMapper _mapper;
 
@@ -28,30 +29,18 @@ namespace ItemManagementSystem.Application.Services;
             IRepository<ItemRequest> requestRepo,
             IRepository<ItemRequestDetail> ItemRequestDetailRepo,
             IRepository<ItemModel> itemModelRepo,
-            IMapper mapper)
+            IMapper mapper,
+            IRepository<Status> statusRepo)
         {
             _requestRepo = requestRepo;
             _ItemRequestDetailRepo = ItemRequestDetailRepo;
             _itemModelRepo = itemModelRepo;
             _mapper = mapper;
-        }
-
-        public async Task<ItemRequestResponseDto> CreateRequestAsync(int userId, CreateItemRequestDto dto)
-        {
-            // Implement the method or throw NotImplementedException if not used
-            throw new NotImplementedException();
+            _statusRepo = statusRepo;
         }
 
         public async Task<PagedResultDto<ItemRequestResponseDto>> GetRequestsByUserPagedAsync(int userId, ItemManagementSystem.Domain.Dto.ItemRequestFilterDto filter)
         {
-            var filterProperties = new Dictionary<string, string?>();
-            filterProperties.Add("UserId", userId.ToString());
-
-            if (!string.IsNullOrEmpty(filter.RequestNumber))
-            {
-                filterProperties.Add("RequestNumber", filter.RequestNumber);
-            }
-
             var parameter = Expression.Parameter(typeof(ItemRequest), "x");
 
             Expression userIdExpression = Expression.Equal(
@@ -59,7 +48,32 @@ namespace ItemManagementSystem.Application.Services;
                 Expression.Constant(userId)
             );
 
+            Expression? requestNumberExpression = null;
+            if (!string.IsNullOrEmpty(filter.RequestNumber))
+            {
+                var requestNumberProperty = Expression.Property(parameter, nameof(ItemRequest.RequestNumber));
+                var requestNumberValue = Expression.Constant(filter.RequestNumber);
+                var containsMethod = typeof(string).GetMethod("Contains", new[] { typeof(string) });
+                requestNumberExpression = Expression.Call(requestNumberProperty, containsMethod!, requestNumberValue);
+            }
+
+            Expression? statusExpression = null;
+            if (!string.IsNullOrEmpty(filter.Status))
+            {
+                var statusProperty = Expression.Property(Expression.Property(parameter, nameof(ItemRequest.Status)), nameof(ItemRequest.Status.Name));
+                var statusValue = Expression.Constant(filter.Status);
+                statusExpression = Expression.Equal(statusProperty, statusValue);
+            }
+
             Expression combinedExpression = userIdExpression;
+            if (requestNumberExpression != null)
+            {
+                combinedExpression = Expression.AndAlso(combinedExpression, requestNumberExpression);
+            }
+            if (statusExpression != null)
+            {
+                combinedExpression = Expression.AndAlso(combinedExpression, statusExpression);
+            }
 
             var lambda = Expression.Lambda<Func<ItemRequest, bool>>(combinedExpression, parameter);
 
@@ -117,12 +131,12 @@ namespace ItemManagementSystem.Application.Services;
         if (entity == null || entity.IsDeleted)
             throw new NullObjectException(AppMessages.ItemRequestNotFound);
 
-        var validStatuses = await _requestRepo.FindAsync(s => s.StatusId == statusId);
+        var validStatuses = await _statusRepo.FindAsync(s => s.Id == statusId);
         if (!validStatuses.Any())
-            throw new CustomException($"Invalid status ID: {statusId}");
+            throw new CustomException(AppMessages.StatusIsNotAvailable);
 
         if (entity.StatusId == statusId)
-            throw new CustomException($"Request is already in the specified status.");
+            throw new CustomException(AppMessages.AlreadyInSameStatus);
 
         var currentStatusId = entity.StatusId;
         var newStatusId = statusId;
@@ -190,7 +204,7 @@ namespace ItemManagementSystem.Application.Services;
 
         if (duplicateItemModelIds.Any())
         {
-            throw new CustomException($"Duplicate ItemModelId(s) found in request: {string.Join(", ", duplicateItemModelIds)}");
+            throw new CustomException($"Duplicate ItemModelIdfound in request: {string.Join(", ", duplicateItemModelIds)}");
         }
 
         foreach (var reqItem in dto.Items)
@@ -199,7 +213,7 @@ namespace ItemManagementSystem.Application.Services;
             if (item == null || item.IsDeleted)
                 throw new CustomException(AppMessages.ItemModelNotFound);
             if ((status == StatusEnum.Pending || status == StatusEnum.Draft) && reqItem.Quantity > item.Quantity)
-                throw new CustomException($"Requested quantity for item {item.Name} exceeds available stock.");
+                throw new CustomException($"Requested quantity for item {item.Name} exceeds available stock. {item.Quantity}");
         }
 
         var entity = _mapper.Map<ItemRequest>(dto);
@@ -233,35 +247,6 @@ namespace ItemManagementSystem.Application.Services;
                 ItemTypeName = null
             }).ToList()
         };
-    }
-
-    public async Task ChangeStatusAsync(int requestId, int userId)
-    {
-        var entity = await _requestRepo.GetByIdAsync(requestId);
-        if (entity == null || entity.IsDeleted)
-            throw new NullObjectException(AppMessages.ItemRequestNotFound);
-
-        if (entity.UserId != userId)
-            throw new CustomException(AppMessages.cannotEditOtherRequest);
-
-        if (entity.Status?.Name == StatusEnum.Draft.ToString())
-        {
-            entity.StatusId = (await _requestRepo.FindAsync(s => s.Status.Name == StatusEnum.Pending.ToString())).FirstOrDefault()?.Id ?? 0;
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.ModifiedBy = userId;
-            await _requestRepo.UpdateAsync(entity);
-        }
-        else if (entity.Status?.Name == StatusEnum.Pending.ToString())
-        {
-            entity.StatusId = (await _requestRepo.FindAsync(s => s.Status.Name == StatusEnum.Cancelled.ToString())).FirstOrDefault()?.Id ?? 0;
-            entity.UpdatedAt = DateTime.UtcNow;
-            entity.ModifiedBy = userId;
-            await _requestRepo.UpdateAsync(entity);
-        }
-        else
-        {
-            throw new CustomException("Only requests with status Draft or Pending can be changed or cancelled.");
-        }
     }
 
     public async Task ChangeDraftToPendingAsync(int requestId, int userId)

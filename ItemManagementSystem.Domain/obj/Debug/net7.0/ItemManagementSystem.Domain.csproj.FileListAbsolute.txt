@@ -40,3 +40,17 @@ C:\Users\pca88\Desktop\ItemManagment-master\ItemManagementSystem.Domain\obj\Debu
 C:\Users\pca88\Desktop\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.pdb
 c:\Users\pca88\Desktop\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.genruntimeconfig.cache
 c:\Users\pca88\Desktop\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ref\ItemManagementSystem.Domain.dll
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.deps.json
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.runtimeconfig.json
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.dll
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\bin\Debug\net7.0\ItemManagementSystem.Domain.pdb
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.csproj.AssemblyReference.cache
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.AssemblyInfoInputs.cache
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.AssemblyInfo.cs
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.csproj.CoreCompileInputs.cache
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.dll
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\refint\ItemManagementSystem.Domain.dll
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.pdb
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ItemManagementSystem.Domain.genruntimeconfig.cache
+C:\Users\pca88\Videos\ItemManagment-master\ItemManagementSystem.Domain\obj\Debug\net7.0\ref\ItemManagementSystem.Domain.dll

@@ -58,6 +58,15 @@ namespace ItemManagementSystem.Application.Implementation
             {
                 filterProperties.Add("User.Name", filter.UserName);
             }
+            if (!string.IsNullOrEmpty(filter.Status))
+            {
+                var statusEntity = (await _statusRepo.FindAsync(s => s.Name == filter.Status)).FirstOrDefault();
+                if (statusEntity == null)
+                {
+                    throw new CustomException($"Invalid status filter: {filter.Status}");
+                }
+                filterProperties.Add("StatusId", statusEntity.Id.ToString());
+            }
 
             var paged = await _itemRequestRepo.GetPagedWithMultipleFiltersAndSortAsync(
                 filterProperties,
@@ -93,7 +102,8 @@ namespace ItemManagementSystem.Application.Implementation
                     RequestNumber = entity.RequestNumber!,
                     Status = Enum.IsDefined(typeof(StatusEnum), entity.StatusId) ? ((StatusEnum)entity.StatusId).ToString() : string.Empty,
                     CreatedAt = entity.CreatedAt,
-                    Items = itemDtos
+                    Items = itemDtos,
+                    UserName = user.Name
                 });
             }
 
@@ -118,14 +128,14 @@ namespace ItemManagementSystem.Application.Implementation
                 throw new CustomException($"Invalid status ID: {statusId}");
 
             if (request.StatusId == statusId)
-                throw new CustomException($"Request is already in the specified status.");
+                throw new CustomException(AppMessages.AlreadyInSameStatus);
 
             var currentStatusId = request.StatusId;
             var newStatusId = statusId;
 
             if (!_allowedTransitions.ContainsKey((currentStatusId, newStatusId)))
             {
-                throw new CustomException($"Invalid status transition from {((StatusEnum)currentStatusId).ToString()} to {((StatusEnum)newStatusId).ToString()}");
+                throw new CustomException($"For Admin Invalid status transition  from {((StatusEnum)currentStatusId).ToString()} to {((StatusEnum)newStatusId).ToString()}");
             }
 
             if (newStatusId == (int)StatusEnum.Approved)
@@ -165,7 +175,6 @@ namespace ItemManagementSystem.Application.Implementation
                 throw new CustomException(AppMessages.OnlyPendingReqEditable);
             }
 
-            // Validate duplicate itemModelId in editDto.Items
             var duplicateItemModelIds = editDto.Items.GroupBy(i => i.ItemModelId)
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
@@ -173,10 +182,9 @@ namespace ItemManagementSystem.Application.Implementation
 
             if (duplicateItemModelIds.Any())
             {
-                throw new CustomException($"Duplicate ItemModelId(s) found in request: {string.Join(", ", duplicateItemModelIds)}");
+                throw new CustomException($"Duplicate ItemModelId found in request: {string.Join(", ", duplicateItemModelIds)}");
             }
 
-            // Validate and update status if provided and different
             if (!string.IsNullOrEmpty(editDto.Status))
             {
                 if (!Enum.TryParse<StatusEnum>(editDto.Status, true, out var statusEnum))
@@ -223,7 +231,7 @@ namespace ItemManagementSystem.Application.Implementation
                     if (existingItemsDict.TryGetValue(itemEdit.ItemModelId, out var existingItem))
                     {
                         existingItem.Quantity = itemEdit.Quantity;
-                        existingItem.IsDeleted = false; // Unmark deleted if previously deleted
+                        existingItem.IsDeleted = false; 
                         await _ItemRequestDetailRepo.UpdateAsync(existingItem);
                     }
                     else

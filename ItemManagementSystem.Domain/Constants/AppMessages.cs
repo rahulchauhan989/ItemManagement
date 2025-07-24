@@ -83,5 +83,9 @@ public static class AppMessages
     public const string AllowedStatuses = "Status must be either 'Draft' or 'Pending'.";
     public const string OnlyCreater = "Only the creator can cancel the request.";
     public const string JwtInput = "Enter your valid JWT token in the text input below";
+    public const string UserNotAllowed = "You are not allowed to change the status of this request.";
+    public const string StatusIsNotAvailable = "The status you are trying to set is not available for this request.";
+    public const string OnlyPendingAndDraftReqCancelable = "Only requests with status Draft or Pending can be changed or cancelled.";
+    public const string InvalidStatus = "Invalid status provided.";
 
 }

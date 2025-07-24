@@ -44,10 +44,13 @@ public class ReturnRequestService : IReturnRequestService
         var entity = await _returnRequestRepo.GetByIdAsync(id);
         if (entity == null || entity.IsDeleted)
             return null;
+        int userId = entity.CreatedBy;
+        var user = await _userRepo.GetByIdAsync(userId);
+        string userName = user!.Name;
 
         var items = await _ReturnRequestDetailRepo.FindIncludingAsync(
             i => i.ReturnRequestId == entity.Id && !i.IsDeleted,
-            new System.Linq.Expressions.Expression<Func<ReturnRequestDetail, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+            new Expression<Func<ReturnRequestDetail, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
 
         var itemDtos = items.Select(i => new ReturnRequestDetailResponseDto
         {
@@ -72,7 +75,8 @@ public class ReturnRequestService : IReturnRequestService
             ReturnRequestNumber = entity.ReturnRequestNumber!,
             Status = statusName,
             CreatedAt = entity.CreatedAt,
-            Items = itemDtos
+            Items = itemDtos,
+            UserName = userName
         };
     }
 
@@ -348,17 +352,22 @@ public class ReturnRequestService : IReturnRequestService
         };
     }
 
-    public async Task<PagedResultDto<ItemManagementSystem.Domain.Dto.Return.ReturnRequestResponseDto>> GetUserReturnRequestsAsync(int userId, ReturnRequestFilterDto filter)
+    public async Task<PagedResultDto<ReturnRequestResponseDto>> GetUserReturnRequestsAsync(int userId, ReturnRequestFilterDto filter)
     {
         var filterProperties = new Dictionary<string, string?>();
         filterProperties.Add("UserId", userId.ToString());
         if (!string.IsNullOrEmpty(filter.Status))
         {
-            filterProperties.Add("Status", filter.Status);
+            var statusEntity = (await _statusRepo.FindAsync(s => s.Name == filter.Status)).FirstOrDefault();
+            if (statusEntity == null)
+            {
+                throw new CustomException($"Invalid status filter: {filter.Status}");
+            }
+            filterProperties.Add("StatusId", statusEntity.Id.ToString());
         }
-        if (!string.IsNullOrEmpty(filter.SearchTerm))
+        if (!string.IsNullOrEmpty(filter.ReturnRequestNumber))
         {
-            filterProperties.Add("ReturnRequestNumber", filter.SearchTerm);
+            filterProperties.Add("ReturnRequestNumber", filter.ReturnRequestNumber);
         }
 
         var paged = await _returnRequestRepo.GetPagedWithMultipleFiltersAndSortAsync(
@@ -368,15 +377,15 @@ public class ReturnRequestService : IReturnRequestService
             filter.Page,
             filter.PageSize);
 
-        var result = new List<ItemManagementSystem.Domain.Dto.Return.ReturnRequestResponseDto>();
+        var result = new List<ReturnRequestResponseDto>();
 
         foreach (var entity in paged.Items)
         {
             var items = await _ReturnRequestDetailRepo.FindIncludingAsync(
                 i => i.ReturnRequestId == entity.Id && !i.IsDeleted,
-                new System.Linq.Expressions.Expression<Func<ReturnRequestDetail, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
+                new Expression<Func<ReturnRequestDetail, object>>[] { i => i.ItemModel, i => i.ItemModel.ItemType });
 
-            var itemDtos = items.Select(i => new ItemManagementSystem.Domain.Dto.Return.ReturnRequestDetailResponseDto
+            var itemDtos = items.Select(i => new ReturnRequestDetailResponseDto
             {
                 Quantity = i.Quantity,
                 ItemModelName = i.ItemModel?.Name,
@@ -393,7 +402,7 @@ public class ReturnRequestService : IReturnRequestService
                 }
             }
 
-            result.Add(new ItemManagementSystem.Domain.Dto.Return.ReturnRequestResponseDto
+            result.Add(new ReturnRequestResponseDto
             {
                 Id = entity.Id,
                 ReturnRequestNumber = entity.ReturnRequestNumber!,
@@ -403,7 +412,7 @@ public class ReturnRequestService : IReturnRequestService
             });
         }
 
-        return new PagedResultDto<ItemManagementSystem.Domain.Dto.Return.ReturnRequestResponseDto>
+        return new PagedResultDto<ReturnRequestResponseDto>
         {
             Items = result,
             TotalCount = paged.TotalCount,
@@ -581,16 +590,25 @@ public class ReturnRequestService : IReturnRequestService
         await _returnRequestRepo.UpdateAsync(request);
     }
 
-    public async Task<PagedResultDto<ItemManagementSystem.Domain.Dto.Return.ReturnRequestResponseDto>> GetAllReturnRequestsAsync(ReturnRequestFilterDto filter)
+    public async Task<PagedResultDto<ReturnRequestResponseDto>> GetAllReturnRequestsAsync(ReturnRequestFilterDto filter)
     {
         var filterProperties = new Dictionary<string, string?>();
         if (!string.IsNullOrEmpty(filter.Status))
         {
-            filterProperties.Add("Status", filter.Status);
+            var statusEntity = (await _statusRepo.FindAsync(s => s.Name == filter.Status)).FirstOrDefault();
+            if (statusEntity == null)
+            {
+                throw new CustomException($"Invalid status filter: {filter.Status}");
+            }
+            filterProperties.Add("StatusId", statusEntity.Id.ToString());
         }
-        if (!string.IsNullOrEmpty(filter.SearchTerm))
+        if (!string.IsNullOrEmpty(filter.UserName))
         {
-            filterProperties.Add("ReturnRequestNumber", filter.SearchTerm);
+            filterProperties.Add("User.Name", filter.UserName);
+        }
+        if (!string.IsNullOrEmpty(filter.ReturnRequestNumber))
+        {
+            filterProperties.Add("ReturnRequestNumber", filter.ReturnRequestNumber);
         }
 
         var paged = await _returnRequestRepo.GetPagedWithMultipleFiltersAndSortAsync(
@@ -625,13 +643,21 @@ public class ReturnRequestService : IReturnRequestService
                 }
             }
 
+            var userName = string.Empty;
+            var user = (await _userRepo.FindAsync(u => u.Id == entity.UserId && u.Active)).FirstOrDefault();
+            if (user != null)
+            {
+                userName = user.Name;
+            }
+
             result.Add(new ReturnRequestResponseDto
             {
                 Id = entity.Id,
                 ReturnRequestNumber = entity.ReturnRequestNumber!,
                 Status = statusName,
                 CreatedAt = entity.CreatedAt,
-                Items = itemDtos
+                Items = itemDtos,
+                UserName = userName
             });
         }
 

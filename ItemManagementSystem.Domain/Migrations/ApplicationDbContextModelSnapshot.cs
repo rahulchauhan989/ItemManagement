@@ -87,14 +87,15 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("ModifiedBy");
 
-                    b.ToTable("ItemModels");
+                    b.ToTable("item_model", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
@@ -102,16 +103,20 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<int?>("ModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("modified_by");
 
                     b.Property<string>("RequestNumber")
                         .IsRequired()
@@ -119,13 +124,16 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<int>("StatusId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("status_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -137,7 +145,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ItemRequests");
+                    b.ToTable("item_request", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemRequestDetail", b =>
@@ -196,7 +204,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("ModifiedBy");
 
-                    b.ToTable("ItemRequestDetails");
+                    b.ToTable("item_request_detail", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemType", b =>
@@ -245,7 +253,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("ModifiedBy");
 
-                    b.ToTable("ItemTypes");
+                    b.ToTable("item_type", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.PurchaseRequest", b =>
@@ -298,7 +306,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PurchaseRequests");
+                    b.ToTable("purchase_request", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.PurchaseRequestDetail", b =>
@@ -342,28 +350,33 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("PurchaseRequestId");
 
-                    b.ToTable("PurchaseRequestDetails");
+                    b.ToTable("purchase_request_detail", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ReturnRequest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
 
                     b.Property<int>("CreatedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
                     b.Property<int?>("ModifiedBy")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("modified_by");
 
                     b.Property<string>("ReturnRequestNumber")
                         .IsRequired()
@@ -371,13 +384,16 @@ namespace ItemManagementSystem.Domain.Migrations
                         .HasColumnType("character varying(50)");
 
                     b.Property<int>("StatusId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("status_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
@@ -389,7 +405,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ReturnRequests");
+                    b.ToTable("return_request", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ReturnRequestDetail", b =>
@@ -443,7 +459,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("ReturnRequestId");
 
-                    b.ToTable("ReturnRequestDetails");
+                    b.ToTable("return_request_detail", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.Role", b =>
@@ -485,24 +501,26 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("ModifiedBy");
 
-                    b.ToTable("Roles");
+                    b.ToTable("roles", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.Status", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("name");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Statuses");
+                    b.ToTable("statuses", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.User", b =>
@@ -565,7 +583,7 @@ namespace ItemManagementSystem.Domain.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("ItemManagementSystem.Domain.DataModels.ItemModel", b =>

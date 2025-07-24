@@ -7,6 +7,7 @@ public class ReturnRequestResponseDto
     public string? Status { get; set; }
     public DateTime? CreatedAt { get; set; }
     public List<ReturnRequestDetailResponseDto> Items { get; set; } = new List<ReturnRequestDetailResponseDto>();
+    public string? UserName { get; set; }
 }
 
 public class ReturnRequestDetailResponseDto

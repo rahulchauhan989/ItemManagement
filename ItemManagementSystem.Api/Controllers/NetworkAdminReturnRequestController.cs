@@ -25,11 +25,11 @@ namespace ItemManagementSystem.Api.Controllers
             _itemTypeService = itemTypeService;
         }
 
-        [HttpPost("search")]
+        [HttpPost("list")]
         public async Task<ActionResult<ApiResponse>> GetAllReturnRequests([FromBody] ReturnRequestFilterDto dto)
         {
             var result = await _returnRequestService.GetAllReturnRequestsAsync(dto);
-            return new ApiResponse(true, 200, result, AppMessages.GetAllReturnRequests);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.GetAllReturnRequests);
         }
 
         [HttpGet("{id}")]
@@ -38,7 +38,7 @@ namespace ItemManagementSystem.Api.Controllers
             var result = await _returnRequestService.GetReturnRequestByIdAsync(id);
             if (result == null)
                 return NotFound(new ApiResponse(false, 404, null, AppMessages.ReturnRequestNotFound));
-            return new ApiResponse(true, 200, result, AppMessages.GetRequestDetails);
+            return new ApiResponse(true, StatusCodes.Status200OK, result, AppMessages.GetRequestDetails);
         }
 
         [HttpPut("{id}")]
@@ -47,7 +47,7 @@ namespace ItemManagementSystem.Api.Controllers
             int userId = UserHelper.GetUserIdFromRequest(Request, _itemTypeService);
             int statusId = (int)Enum.Parse(typeof(StatusEnum), dto.Status.ToString());
             await _returnRequestService.UpdateReturnRequestStatusAsync(id, statusId, dto.Comment, userId);
-            return new ApiResponse(true, 200, null, AppMessages.ReturnRequestStatusUpdated);
+            return new ApiResponse(true, StatusCodes.Status200OK, null, AppMessages.ReturnRequestStatusUpdated);
         }
     }
 }

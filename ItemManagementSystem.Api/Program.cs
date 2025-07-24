@@ -29,6 +29,7 @@ builder.Services.AddScoped<IPurchaseRequestService,PurchaseRequestService>();
 builder.Services.AddScoped<IItemRequestService, ItemRequestService>();
 builder.Services.AddScoped<IUserItemRequestService, UserItemRequestService>();
 builder.Services.AddScoped<IReturnRequestService, ReturnRequestService>();
+builder.Services.AddScoped<IUserReturnRequestService,UserReturnRequestService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
